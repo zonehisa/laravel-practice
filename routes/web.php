@@ -36,3 +36,18 @@ Route::get('/register-data-importer/download/{file}', function (string $file) {
         'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     ]);
 })->name('register-data-importer.download');
+
+Volt::route('/consignment-invoice-generator', 'consignment-invoice-generator.index')
+    ->name('consignment-invoice-generator.index');
+
+Route::get('/consignment-invoice-generator/download/{file}', function (string $file) {
+    $filePath = storage_path('app/public/' . $file);
+
+    if (! file_exists($filePath)) {
+        abort(404, 'ファイルが見つかりません。');
+    }
+
+    return response()->download($filePath, $file, [
+        'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    ]);
+})->name('consignment-invoice-generator.download');
