@@ -51,3 +51,15 @@ Route::get('/consignment-invoice-generator/download/{file}', function (string $f
         'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     ]);
 })->name('consignment-invoice-generator.download');
+
+Volt::route('/reservations', 'reservations.calendar')
+    ->name('reservations.calendar');
+
+Volt::route('/reservations/create', 'reservations.create')
+    ->name('reservations.create');
+
+Volt::route('/reservations/{reservation}', 'reservations.show')
+    ->name('reservations.show');
+
+Volt::route('/reservations/{reservation}/edit', 'reservations.edit')
+    ->name('reservations.edit');
