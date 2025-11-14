@@ -13,7 +13,8 @@
         "laravel/framework": "^12.0",
         "laravel/tinker": "^2.10.1",
         "livewire/volt": "^1.9",
-        "phpoffice/phpspreadsheet": "^5.2"
+        "phpoffice/phpspreadsheet": "^5.2",
+        "smalot/pdfparser": "^2.12"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.16",

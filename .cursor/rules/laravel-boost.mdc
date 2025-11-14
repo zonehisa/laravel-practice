@@ -22,14 +22,7 @@ This application is a Laravel application and its main Laravel ecosystems packag
 - laravel/sail (SAIL) - v1
 - pestphp/pest (PEST) - v4
 - phpunit/phpunit (PHPUNIT) - v12
-
-## Sail Command Execution
-- This project operates within a Laravel Sail (Docker) environment.
-- **All** commands that would normally be run locally (such as `php`, `artisan`, `composer`, `pint`, `npm`, `npx`) **must** be prefixed with `./vendor/bin/sail`.
-- For example:
-    - `php artisan make:model Thing` becomes `./vendor/bin/sail artisan make:model Thing`.
-    - `vendor/bin/pint` becomes `./vendor/bin/sail pint`.
-    - `composer require laravel/sanctum` becomes `./vendor/bin/sail composer require laravel/sanctum`.
+- tailwindcss (TAILWINDCSS) - v4
 
 ## Conventions
 - You must follow all existing code conventions used in this application. When creating or editing a file, check sibling files for the correct structure, approach, naming.
@@ -44,7 +37,7 @@ This application is a Laravel application and its main Laravel ecosystems packag
 - Do not change the application's dependencies without approval.
 
 ## Frontend Bundling
-- If the user doesn't see a frontend change reflected in the UI, it could mean they need to run `./vendor/bin/sail npm run build`, `./vendor/bin/sail npm run dev`, or `./vendor/bin/sail composer run dev`. Ask them.
+- If the user doesn't see a frontend change reflected in the UI, it could mean they need to run `npm run build`, `npm run dev`, or `composer run dev`. Ask them.
 
 ## Replies
 - Be concise in your explanations - focus on what's important rather than explaining obvious details.
@@ -126,28 +119,19 @@ protected function isAccessible(User $user, ?string $path = null): bool
 
 ## Do Things the Laravel Way
 
-- Use `./vendor/bin/sail artisan make:` commands to create new files (i.e. migrations, controllers, models, etc.). You can list available Artisan commands using the `list-artisan-commands` tool.
-- If you're creating a generic PHP class, use `./vendor/bin/sail artisan make:class`.
+- Use `php artisan make:` commands to create new files (i.e. migrations, controllers, models, etc.). You can list available Artisan commands using the `list-artisan-commands` tool.
+- If you're creating a generic PHP class, use `artisan make:class`.
 - Pass `--no-interaction` to all Artisan commands to ensure they work without user input. You should also pass the correct `--options` to ensure correct behavior.
 
 ### Database
-- **Strictly use Eloquent ORM**: All database operations must use Eloquent ORM. The use of `DB::` facade and raw SQL queries is prohibited.
-- **Prioritize Eloquent models and relationships**: Use proper return type hints for relationship methods. Prefer relationship methods over raw queries or manual JOINs.
-- **`DB::raw()` usage via Eloquent models is allowed**: Using `selectRaw()`, `whereRaw()`, `orderByRaw()`, etc. via Eloquent models is allowed. These function as part of Eloquent queries. Example: `Model::query()->selectRaw('COUNT(*) as total')->whereRaw('price > ?', [100])`
-- **Direct `DB::` facade usage is prohibited**: Direct usage of `DB::table()`, `DB::select()`, `DB::raw()`, etc. is prohibited. Use `Model::query()` instead.
-- **Handling cases where Eloquent cannot fully handle**: For extremely complex database operations that Eloquent ORM cannot fully handle (e.g., window functions, complex CTEs, stored procedures, database-specific features), consider one of the following approaches:
-    1. **Use `DB::raw()` via Eloquent models**: Use `Model::query()->selectRaw()` or `Model::query()->whereRaw()`, etc., via Eloquent models.
-    2. **Separate into dedicated repository or service classes**: Separate complex query logic into dedicated classes and clearly explain the reason in PHPDoc.
-    3. **Use `DB::table()` as a last resort**: Only use `DB::table()` when it's absolutely impossible to handle via Eloquent models, and explain the reason in comments. Plan to replace with Eloquent models whenever possible.
-- **Actively use relationships**: Always use relationship methods for data retrieval. Use `hasMany()`, `belongsTo()`, `belongsToMany()`, `hasOne()`, `hasManyThrough()`, etc. appropriately.
-- **Prevent N+1 problems**: Always use `with()`, `load()`, `loadMissing()` to implement Eager Loading and prevent N+1 query problems.
-- **Use Eloquent scopes**: Define reusable query conditions as scopes on models. Use `scope*` methods.
-- **Use accessors and mutators**: Use accessors (`get*Attribute()`) and mutators (`set*Attribute()`) for data transformation and formatting.
-- **Use Eloquent collections**: Actively use Eloquent collection methods (`map()`, `filter()`, `pluck()`, `groupBy()`, etc.) for data manipulation.
-- **Use model events**: Use model events (`creating()`, `created()`, `updating()`, `updated()`, `deleting()`, `deleted()`, etc.) for pre/post save and delete operations.
+- Always use proper Eloquent relationship methods with return type hints. Prefer relationship methods over raw queries or manual joins.
+- Use Eloquent models and relationships before suggesting raw database queries
+- Avoid `DB::`; prefer `Model::query()`. Generate code that leverages Laravel's ORM capabilities rather than bypassing them.
+- Generate code that prevents N+1 query problems by using eager loading.
+- Use Laravel's query builder for very complex database operations.
 
 ### Model Creation
-- When creating new models, create useful factories and seeders for them too. Ask the user if they need any other things, using `list-artisan-commands` to check the available options to `./vendor/bin/sail artisan make:model`.
+- When creating new models, create useful factories and seeders for them too. Ask the user if they need any other things, using `list-artisan-commands` to check the available options to `php artisan make:model`.
 
 ### APIs & Eloquent Resources
 - For APIs, default to using Eloquent API Resources and API versioning unless existing API routes do not, then you should follow existing application convention.
@@ -169,14 +153,12 @@ protected function isAccessible(User $user, ?string $path = null): bool
 - Use environment variables only in configuration files - never use the `env()` function directly outside of config files. Always use `config('app.name')`, not `env('APP_NAME')`.
 
 ### Testing
-- **Use Eloquent models and factories**: When creating models in tests, always use Eloquent model factories. If factories have custom states, check them before manually setting up models.
-- **Database operations via Eloquent**: Use Eloquent ORM for database operations within tests. Do not use `DB::` facade or raw SQL queries.
-- **Testing relationships**: In relationship tests, use Eloquent relationship methods to retrieve and verify data.
+- When creating models for tests, use the factories for the models. Check if the factory has custom states that can be used before manually setting up the model.
 - Faker: Use methods such as `$this->faker->word()` or `fake()->randomDigit()`. Follow existing conventions whether to use `$this->faker` or `fake()`.
-- When creating tests, make use of `./vendor/bin/sail artisan make:test [options] <name>` to create a feature test, and pass `--unit` to create a unit test. Most tests should be feature tests.
+- When creating tests, make use of `php artisan make:test [options] <name>` to create a feature test, and pass `--unit` to create a unit test. Most tests should be feature tests.
 
 ### Vite Error
-- If you receive an "Illuminate\Foundation\ViteException: Unable to locate file in Vite manifest" error, you can run `./vendor/bin/sail npm run build` or ask the user to run `./vendor/bin/sail npm run dev` or `./vendor/bin/sail composer run dev`.
+- If you receive an "Illuminate\Foundation\ViteException: Unable to locate file in Vite manifest" error, you can run `npm run build` or ask the user to run `npm run dev` or `composer run dev`.
 
 
 === laravel/v12 rules ===
@@ -205,7 +187,7 @@ protected function isAccessible(User $user, ?string $path = null): bool
 
 ## Livewire Core
 - Use the `search-docs` tool to find exact version specific documentation for how to write Livewire & Livewire tests.
-- Use the `./vendor/bin/sail artisan make:livewire [Posts\CreatePost]` artisan command to create new components
+- Use the `php artisan make:livewire [Posts\CreatePost]` artisan command to create new components
 - State should live on the server, with the UI reflecting it.
 - All Livewire requests hit the Laravel backend, they're like regular HTTP requests. Always validate form data, and run authorization checks in Livewire actions.
 
@@ -289,26 +271,10 @@ document.addEventListener('livewire:init', function () {
 ## Livewire Volt
 
 - This project uses Livewire Volt for interactivity within its pages. New pages requiring interactivity must also use Livewire Volt. There is documentation available for it.
-- Make new Volt components using `./vendor/bin/sail artisan make:volt [name] [--test] [--pest]`
+- Make new Volt components using `php artisan make:volt [name] [--test] [--pest]`
 - Volt is a **class-based** and **functional** API for Livewire that supports single-file components, allowing a component's PHP logic and Blade templates to co-exist in the same file
 - Livewire Volt allows PHP logic and Blade templates in one file. Components use the `@volt` directive.
-- For this project, you must **always use the functional API** when creating new Volt components. Do not use the class-based API for new components.
-
-### Volt Routing
-- Use `Volt::route('url', 'component')` in `routes/web.php` to define full-page components.
-- Always chain `->name('route.name')` to your routes.
-- **Route Order Matters:** You must define specific static routes (e.g., `/tickets/create`) *before* dynamic parameter routes (e.g., `/tickets/{ticket}`) to prevent the dynamic route from capturing the specific URL.
-- **Parameters:** Dynamic parameters in the URL (e.g., `{ticket}`) are automatically bound to the Volt component's state if the property name matches (e.g., `state(['ticket'])`).
-
-<code-snippet name="Volt Routing Example" lang="php">
-use Livewire\Volt\Volt;
-
-// 1. Specific routes first
-Volt::route('/tickets/create', 'tickets.create')->name('tickets.create');
-
-// 2. Dynamic routes second
-Volt::route('/tickets/{ticket}', 'tickets.show')->name('tickets.show');
-</code-snippet>
+- You must check existing Volt components to determine if they're functional or class based. If you can't detect that, ask the user which they prefer before writing a Volt component.
 
 ### Volt Functional Component Example
 
@@ -437,8 +403,8 @@ $delete = fn(Product $product) => $product->delete();
 
 ## Laravel Pint Code Formatter
 
-- You must run `./vendor/bin/sail pint --dirty` before finalizing changes to ensure your code matches the project's expected style.
-- Do not run `./vendor/bin/sail pint --test`, simply run `./vendor/bin/sail pint` to fix any formatting issues.
+- You must run `vendor/bin/pint --dirty` before finalizing changes to ensure your code matches the project's expected style.
+- Do not run `vendor/bin/pint --test`, simply run `vendor/bin/pint` to fix any formatting issues.
 
 
 === pest/core rules ===
@@ -449,7 +415,7 @@ $delete = fn(Product $product) => $product->delete();
 - If you need to verify a feature is working, write or update a Unit / Feature test.
 
 ### Pest Tests
-- All tests must be written using Pest. Use `./vendor/bin/sail artisan make:test --pest <name>`.
+- All tests must be written using Pest. Use `php artisan make:test --pest <name>`.
 - You must not remove any tests or test files from the tests directory without approval. These are not temporary or helper files - these are core to the application.
 - Tests should test all of the happy paths, failure paths, and weird paths.
 - Tests live in the `tests/Feature` and `tests/Unit` directories.
@@ -462,9 +428,9 @@ it('is true', function () {
 
 ### Running Tests
 - Run the minimal number of tests using an appropriate filter before finalizing code edits.
-- To run all tests: `./vendor/bin/sail test`.
-- To run all tests in a file: `./vendor/bin/sail test tests/Feature/ExampleTest.php`.
-- To filter on a particular test name: `./vendor/bin/sail test --filter=testName` (recommended after making a change to a related file).
+- To run all tests: `php artisan test`.
+- To run all tests in a file: `php artisan test tests/Feature/ExampleTest.php`.
+- To filter on a particular test name: `php artisan test --filter=testName` (recommended after making a change to a related file).
 - When the tests relating to your changes are passing, ask the user if they would like to run the entire test suite to ensure everything is still passing.
 
 ### Pest Assertions
@@ -605,12 +571,4 @@ $pages->assertNoJavascriptErrors()->assertNoConsoleLogs();
 | overflow-ellipsis | text-ellipsis |
 | decoration-slice | box-decoration-slice |
 | decoration-clone | box-decoration-clone |
-
-
-=== tests rules ===
-
-## Test Enforcement
-
-- Every change must be programmatically tested. Write a new test or update an existing test, then run the affected tests to make sure they pass.
-- Run the minimum number of tests needed to ensure code quality and speed. Use `./vendor/bin/sail test` with a specific filename or filter.
 </laravel-boost-guidelines>
